@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Umut Admis Tyngdlyftningskalkylator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0 auto; max-width: 500px; padding: 1em; }
+        label, select, input { display: block; margin-bottom: 1em; }
+        button { padding: 0.5em 1em; }
+        .set { border: 1px solid #ccc; padding: 1em; margin-bottom: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Umut Admis Tyngdlyftningskalkylator</h1>
+
+    <div id="setsContainer">
+        <div class="set">
+            <label for="exercise">Övning</label>
+            <select class="exercise" required>
+                <option value="Ryck">Ryck</option>
+                <option value="Vändning">Vändning</option>
+                <option value="Överstöt">Överstöt</option>
+                <option value="Böj Bak">Böj Bak</option>
+                <option value="Böj Fram">Böj Fram</option>
+                <option value="Stötdrag">Stötdrag</option>
+                <option value="Ryckdrag">Ryckdrag</option>
+                <option value="Kickstöt">Kickstöt</option>
+                <option value="Press">Press</option>
+                <option value="Pushpress">Pushpress</option>
+                <option value="Stöt">Stöt</option>
+                <option value="Styrkeryck">Styrkeryck</option>
+                <option value="Häng Styrkeryck Över knä">Häng Styrkeryck Över knä</option>
+                <option value="Häng styrkeryck under knä">Häng styrkeryck under knä</option>
+                <option value="Muscle snacth">Muscle snacth</option>
+                <option value="Styrkevändning">Styrkevändning</option>
+                <option value="Hängvändning">Hängvändning</option>
+                <option value="Hängryck under knä">Hängryck under knä</option>
+                <option value="Hängryck över knä">Hängryck över knä</option>
+            </select>
+
+            <label for="weight">Vikt (kg)</label>
+            <input type="number" class="weight" required>
+
+            <label for="reps">Repetitioner</label>
+            <input type="number" class="reps" required>
+
+            <label for="sets">Antal set</label>
+            <input type="number" class="sets" required>
+        </div>
+    </div>
+
+    <button id="addSet">Lägg till övning</button>
+    <button id="calculate">Beräkna total volym</button>
+
+    <h2>Total volym per övning:</h2>
+    <div id="volumePerExercise"></div>
+
+    <a id="sendEmail" href="#">Skicka resultat till Umut</a>
+
+    <script>
+        var volumes = {};
+        var setsCount = {};
+        var repsCount = {};
+
+        document.getElementById('addSet').addEventListener('click', function() {
+            var setContainer = document.getElementById('setsContainer');
+            var newSet = setContainer.firstElementChild.cloneNode(true);
+            setContainer.appendChild(newSet);
+        });
+
+        document.getElementById('calculate').addEventListener('click', function() {
+            var sets = document.getElementsByClassName('set');
+
+            for (var i = 0; i < sets.length; i++) {
+                var exercise = sets[i].getElementsByClassName('exercise')[0].value;
+                var weight = sets[i].getElementsByClassName('weight')[0].value;
+                var reps = sets[i].getElementsByClassName('reps')[0].value;
+                var setCount = sets[i].getElementsByClassName('sets')[0].value;
+
+                var volume = weight * reps * setCount;
+
+                if (volumes[exercise]) {
+                    volumes[exercise] += volume;
+                    setsCount[exercise] += parseInt(setCount);
+                    repsCount[exercise] += parseInt(reps) * parseInt(setCount);
+                } else {
+                    volumes[exercise] = volume;
+                    setsCount[exercise] = parseInt(setCount);
+                    repsCount[exercise] = parseInt(reps) * parseInt(setCount);
+                }
+            }
+
+            var volumeDisplay = '';
+            var emailBody = 'Resultat från tyngdlyftningskalkylator:\n\n';
+            for (var key in volumes) {
+                volumeDisplay += '<p>' + key + ': ' + volumes[key] + ' kg, ' + setsCount[key] + ' set, ' + repsCount[key] + ' reps</p>';
+                emailBody += key + ': ' + volumes[key] + ' kg, ' + setsCount[key] + ' set, ' + repsCount[key] + ' reps\n';
+            }
+
+            document.getElementById('volumePerExercise').innerHTML = volumeDisplay;
+            document.getElementById('sendEmail').href = 'mailto:Umut.admis@outlook.com?subject=Tyngdlyftningsresultat&body=' + encodeURIComponent(emailBody);
+
+            // Rensa volumes och setsCount för nästa beräkning
+            volumes = {};
+            setsCount = {};
+            repsCount = {};
+        });
+    </script>
+</body>
+</html>
